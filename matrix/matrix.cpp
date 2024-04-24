@@ -19,6 +19,7 @@ Matrix::~Matrix()
 
 Matrix::Matrix(const Matrix& other) : rows(other.rows), columns(other.columns)
 {
+    allocSpace();
     for (int i = 0; i < rows; ++i)
     {
         for (int j = 0; j < columns; ++j)
@@ -120,24 +121,19 @@ Matrix& Matrix::operator-=(const Matrix& other)
 
 Matrix& Matrix::operator*=(const Matrix& other)
 {
-    bool isMatrixSizeLegal = columns == other.rows;
-    if (!isMatrixSizeLegal)
-    {
-        throw MatrixSizeException();
-    }
+    
 
     Matrix temp(rows, other.columns);
-    for (int i = 0; i < temp.rows; ++i)
-    {
-        for (int j = 0; j < temp.columns; ++j)
-        {
-            for (int k = 0; k < columns; ++k)
-            {
-                temp(i, j) += (array[i][k] * other.array[k][j]);
+    for (int i = 0; i < temp.rows; ++i) {
+        for (int j = 0; j < temp.columns; ++j) {
+            for (int k = 0; k < columns; ++k) {
+                
+                temp.array[i][j] += (array[i][k] * other.array[k][j]);
             }
         }
     }
-
+    
+    
     *this = temp;
     return *this;
 }

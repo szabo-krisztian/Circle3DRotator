@@ -18,21 +18,6 @@ namespace geo
             os << '(' << obj.x << ',' << obj.y << ')';
         }
     };
-
-    template <typename T>
-    class Matrix
-    {
-    public:
-        Matrix(int size) : size(size) { matrix.}
-
-        T& operator()(int i, int j)
-        {
-            
-        }
-    private:
-        const int size;
-        std::vector<std::vector<T>> matrix;
-    };
 }
 
 #endif

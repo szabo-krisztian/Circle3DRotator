@@ -1,6 +1,6 @@
 #include <iostream>
 #include <Windows.h>
-#include "DescartesMatrix.hpp"
+#include "matrix/matrix.h"
 
 void clearScreen() {
     std::system("cls");
@@ -14,24 +14,18 @@ bool isKeyPressed(char key)
 constexpr int MAP_SIZE = 15;
 
 int main() {
-    bool running = true;
-    DescartesMatrix matrix(23);
 
-    matrix.print_matrix(PrintFunc());
-
-    /*
-    while (running) {
-        clearScreen();
-        
-    
-
-
-        if (isKeyPressed('A'))
+    Matrix m1(3, 3);
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
         {
-            running = false;
+            m1(i, j) = i + j;
         }
     }
-    */
+    
+    std::cout << m1;
 
+    
     return 0;
 }

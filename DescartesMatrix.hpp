@@ -4,54 +4,66 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include "geo.hpp"
-
-class DescartesFunc
-{
-public:
-    virtual void operator()(char& data) const = 0;
-};
-
-class PrintFunc : public DescartesFunc
-{
-public:
-    void operator()(char& data) const override {
-        std::cout << data << ' ';
-    }  
-};
+#include "Geometry.hpp"
 
 class DescartesMatrix
 {
 public:
-    DescartesMatrix(int size) : size(size)
+    DescartesMatrix(int size) : size(size), center(geo::Vector2Int((size-1)/2, (size-1)/2)), radius((size-1)/2)
     {
         init_matrix();
     }
 
-    void print_matrix(const DescartesFunc& myF)
+    void print_matrix()
     {
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
             {
-                myF(matrix[i][j]);
+                std::cout << matrix[i][j] << ' ';
             }
             std::cout << std::endl;
         }
     }
+
 private:
     const int size;
     std::vector<std::vector<char>> matrix;
+    geo::Vector2Int center;
+    int radius;
 
-    std::vector<Vector2> get_circ_points()
+    void plot_points(std::vector<geo::Vector2Int>& points, int x, int y)
     {
-        std::vector<Vector2> points;
+        points.push_back(geo::Vector2Int(center.x + x, center.y + y));
+        points.push_back(geo::Vector2Int(center.x - x, center.y + y));
+        points.push_back(geo::Vector2Int(center.x + x, center.y - y));
+        points.push_back(geo::Vector2Int(center.x - x, center.y - y));
+        points.push_back(geo::Vector2Int(center.x + y, center.y + x));
+        points.push_back(geo::Vector2Int(center.x - y, center.y + x));
+        points.push_back(geo::Vector2Int(center.x + y, center.y - x));
+        points.push_back(geo::Vector2Int(center.x - y, center.y - x));
+    }
 
-        for (int i = 0; i < size; i++)
+    std::vector<geo::Vector2Int> get_circle_points()
+    {
+        int x = radius;
+        int y = 0;
+        int p = 1 - radius;
+
+        std::vector<geo::Vector2Int> points;
+        while (x >= y)
         {
-            float x = 2*(float)i / (size-1) - 1;
-            Vector2 point(x, std::sqrt(1 - x*x));
-            points.push_back(point);
+            plot_points(points, x, y);
+            y++;
+            if (p <= 0)
+            {
+                p = p + 2 * y + 1;
+            }
+            else
+            {
+                x--;
+                p = p + 2 * y - 2 * x + 1;
+            }
         }
 
         return points;
@@ -60,19 +72,16 @@ private:
     void init_matrix()
     {
         matrix.resize(size, std::vector<char>(size, '.'));
-        
-        std::vector<Vector2> points = get_circ_points();
-        
-        
-        for (Vector2 point : points)
+        auto points = get_circle_points();
+        for (const auto& i : points)
         {
-            Vector2Des p = point.get_desc_coord(Vector2Des((size-1)/2,(size-1)/2), size);
-            matrix[(size-1)/2 - p.y][(size-1)/2 + p.x] = 'X';
+            std::cout << i.x - center.x << ',' << i.y - center.y << std::endl;
+            matrix[i.y][i.x] = '#';
         }
+        print_matrix();
     }
     
-        
-        
+    //std::vector<geo::Vector2Int> get_rotated_points(const std::vector<geo::Vector2Int>& points, )
 };
 
 #endif

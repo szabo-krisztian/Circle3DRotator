@@ -12,18 +12,6 @@ Matrix::Matrix(int rows, int columns) : rows(rows), columns(columns)
     }
 }
 
-Matrix::Matrix(double alpha) : rows(2), columns(2)
-{
-    allocSpace();
-    double cosAngle = std::cos(alpha);
-    double sinAngle = std::sin(alpha);
-
-    (*this)(0,0) = cosAngle;
-    (*this)(0,1) = sinAngle;
-    (*this)(1,0) = -sinAngle;
-    (*this)(1,1) = cosAngle;
-}
-
 Matrix::~Matrix()
 {
     freeSpace();
@@ -78,6 +66,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix& matrix)
         }
         os << std::endl;
     }
+    return os;
 }
 
 

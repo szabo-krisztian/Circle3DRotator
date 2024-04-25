@@ -9,7 +9,6 @@ class Matrix
 {
 public:
     Matrix(int rows, int columns);
-    Matrix(double alpha);
     ~Matrix();
     Matrix(const Matrix& other);
     Matrix& operator=(const Matrix& rhs);

@@ -12,6 +12,18 @@ Matrix::Matrix(int rows, int columns) : rows(rows), columns(columns)
     }
 }
 
+Matrix::Matrix(double alpha) : rows(2), columns(2)
+{
+    allocSpace();
+    double cosAngle = std::cos(alpha);
+    double sinAngle = std::sin(alpha);
+
+    (*this)(0,0) = cosAngle;
+    (*this)(0,1) = sinAngle;
+    (*this)(1,0) = -sinAngle;
+    (*this)(1,1) = cosAngle;
+}
+
 Matrix::~Matrix()
 {
     freeSpace();
@@ -121,7 +133,11 @@ Matrix& Matrix::operator-=(const Matrix& other)
 
 Matrix& Matrix::operator*=(const Matrix& other)
 {
-    
+    bool isMatrixSizeLegal = columns == other.rows;
+    if (!isMatrixSizeLegal)
+    {
+        throw MatrixSizeException();
+    }
 
     Matrix temp(rows, other.columns);
     for (int i = 0; i < temp.rows; ++i) {
@@ -138,7 +154,19 @@ Matrix& Matrix::operator*=(const Matrix& other)
     return *this;
 }
 
+Matrix Matrix::operator*(const Matrix& other) const
+{
+    bool isMatrixSizeLegal = columns == other.rows;
+    if (!isMatrixSizeLegal)
+    {
+        std::cout << "sad";
+        throw MatrixSizeException();
+    }
 
+    Matrix result(*this);
+    result *= other;
+    return result;
+}
 
 
 

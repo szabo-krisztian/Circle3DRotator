@@ -2,12 +2,14 @@
 #define __MATRIX_H__
 
 #include <iostream>
+#include <cmath>
 #include "matrixexcept.h"
 
 class Matrix
 {
 public:
     Matrix(int rows, int columns);
+    Matrix(double alpha);
     ~Matrix();
     Matrix(const Matrix& other);
     Matrix& operator=(const Matrix& rhs);
@@ -17,6 +19,7 @@ public:
     Matrix& operator+=(const Matrix& other);
     Matrix& operator-=(const Matrix& other);
     Matrix& operator*=(const Matrix& other);
+    Matrix operator*(const Matrix& other) const;
 
 private:
     int rows, columns;

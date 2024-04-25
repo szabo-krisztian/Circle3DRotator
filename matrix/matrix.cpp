@@ -176,3 +176,47 @@ void Matrix::freeSpace()
     }
     delete[] array;
 }
+
+Matrix Matrix::get_x_rotation(double angle)
+{
+    Matrix rotation(3, 3);
+    double sinAngle = std::sin(angle);
+    double cosAngle = std::cos(angle);
+
+    rotation(0, 0) = 1;
+    rotation(1, 1) = cosAngle;
+    rotation(1, 2) = sinAngle;
+    rotation(2, 1) = -sinAngle;
+    rotation(2, 2) = cosAngle;
+    return rotation;
+}
+
+Matrix Matrix::get_y_rotation(double angle)
+{
+    Matrix rotation(3, 3);
+    double sinAngle = std::sin(angle);
+    double cosAngle = std::cos(angle);
+
+    rotation(1, 1) = 1;
+    rotation(0, 0) = cosAngle;
+    rotation(0, 2) = sinAngle;
+    rotation(2, 0) = -sinAngle;
+    rotation(2, 2) = cosAngle;
+    std::cout << rotation <<std::endl;
+    return rotation;
+}
+
+
+Matrix Matrix::get_z_rotation(double angle)
+{
+    Matrix rotation(3, 3);
+    double sinAngle = std::sin(angle);
+    double cosAngle = std::cos(angle);
+
+    rotation(2, 2) = 1;
+    rotation(0, 0) = cosAngle;
+    rotation(0, 1) = sinAngle;
+    rotation(1, 0) = -sinAngle;
+    rotation(1, 1) = cosAngle;
+    return rotation;
+}

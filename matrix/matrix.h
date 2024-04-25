@@ -20,6 +20,10 @@ public:
     Matrix& operator*=(const Matrix& other);
     Matrix operator*(const Matrix& other) const;
 
+    static Matrix get_x_rotation(double alpha);
+    static Matrix get_y_rotation(double alpha);
+    static Matrix get_z_rotation(double alpha);
+
 private:
     int rows, columns;
     double** array;

@@ -1,44 +1,39 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <Windows.h>
 #include "matrix/matrix.h"
 
-constexpr int PICTURE_SIZE = 23;
-constexpr int CENTER = (PICTURE_SIZE - 1) / 2;
-constexpr int RADIUS = CENTER;
-constexpr double ANGLE = M_PI / 4;
+constexpr double ANGLE = 45 * (M_PI / 180.0);
 
-Matrix create_2d_vector(double x, double y)
+Matrix create_3d_vector(double x, double y)
 {
-    Matrix vector(2, 1);
+    Matrix vector(3, 1);
     vector(0, 0) = x;
     vector(1, 0) = y;
+    vector(2, 0) = 0;
     return vector;
 }
 
-void plot_points(std::vector<Matrix>& points, int x, int y)
+std::vector<Matrix> get_circle_plane_vectors(int radius, int center)
 {
-    points.push_back(create_2d_vector(CENTER + x, CENTER + y));
-    points.push_back(create_2d_vector(CENTER + x, CENTER + y));
-    points.push_back(create_2d_vector(CENTER - x, CENTER + y));
-    points.push_back(create_2d_vector(CENTER + x, CENTER - y));
-    points.push_back(create_2d_vector(CENTER - x, CENTER - y));
-    points.push_back(create_2d_vector(CENTER + y, CENTER + x));
-    points.push_back(create_2d_vector(CENTER - y, CENTER + x));
-    points.push_back(create_2d_vector(CENTER + y, CENTER - x));
-    points.push_back(create_2d_vector(CENTER - y, CENTER - x));
-}
-
-std::vector<Matrix> get_circle_points()
-{
-    int x = RADIUS;
+    int x = radius;
     int y = 0;
-    int p = 1 - RADIUS;
+    int p = 1 - radius;
 
     std::vector<Matrix> points;
     while (x >= y)
     {
-        plot_points(points, x, y);
+        points.push_back(create_3d_vector(center + x, center + y));
+        points.push_back(create_3d_vector(center + x, center + y));
+        points.push_back(create_3d_vector(center - x, center + y));
+        points.push_back(create_3d_vector(center + x, center - y));
+        points.push_back(create_3d_vector(center - x, center - y));
+        points.push_back(create_3d_vector(center + y, center + x));
+        points.push_back(create_3d_vector(center - y, center + x));
+        points.push_back(create_3d_vector(center + y, center - x));
+        points.push_back(create_3d_vector(center - y, center - x));
+
         y++;
         if (p <= 0)
         {
@@ -54,11 +49,11 @@ std::vector<Matrix> get_circle_points()
     return points;
 }
 
-void print_pic_matrix(const std::vector<std::vector<char>>& picture)
+void print_picture(const std::vector<std::vector<char>>& picture)
 {
-    for (int i = 0; i < PICTURE_SIZE; ++i)
+    for (int i = 0; i < picture.size(); ++i)
     {
-        for (int j = 0; j < PICTURE_SIZE; ++j)
+        for (int j = 0; j < picture.size(); ++j)
         {
             std::cout << picture[i][j] << ' ';
         }
@@ -66,93 +61,185 @@ void print_pic_matrix(const std::vector<std::vector<char>>& picture)
     }
 }
 
-Matrix get_cartesian_coord(Matrix& plane_coord)
+Matrix get_cartesian_coord(Matrix& plane_coord, int center)
 {
     Matrix cartesian(3, 1);
-    cartesian(0, 0) = plane_coord(0, 0) - CENTER;
-    cartesian(1, 0) = plane_coord(1, 0) - CENTER;
+    cartesian(0, 0) = plane_coord(0, 0) - center;
+    cartesian(1, 0) = plane_coord(1, 0) - center;
     cartesian(2, 0) = 0;
     return cartesian;
 }
 
-Matrix get_plane_coord(Matrix& cartesian_coord)
+Matrix get_plane_coord(Matrix& cartesian_coord, int center)
 {
     Matrix plane_coord(2, 1);
-    plane_coord(0, 0) = (int)round(cartesian_coord(0, 0)) + CENTER;
-    plane_coord(1, 0) = (int)round(cartesian_coord(1, 0)) + CENTER;
+    plane_coord(0, 0) = (int)round(cartesian_coord(0, 0)) + center;
+    plane_coord(1, 0) = (int)round(cartesian_coord(1, 0)) + center;
     return plane_coord;
-}
-
-Matrix create_x_rotation_matrix(double angle)
-{
-    Matrix rotation(3, 3);
-    double sinAngle = std::sin(angle);
-    double cosAngle = std::cos(angle);
-
-    rotation(1, 1) = 1;
-    rotation(0, 0) = cosAngle;
-    rotation(0, 2) = sinAngle;
-    rotation(2, 0) = -sinAngle;
-    rotation(2, 2) = cosAngle;
-    return rotation;
 }
 
 void clear_picture(std::vector<std::vector<char>>& picture)
 {
-    for (int i = 0; i < PICTURE_SIZE; ++i)
+    for (int i = 0; i < picture.size(); ++i)
     {
-        for (int j = 0; j < PICTURE_SIZE; ++j)
+        for (int j = 0; j < picture.size(); ++j)
         {
             picture[i][j] = '.';
         }
     }
 }
 
-void rotate(double angle, std::vector<Matrix>& points, std::vector<std::vector<char>>& picture)
+void rotate(double angle, std::vector<Matrix>& points, std::vector<std::vector<char>>& picture, int radius, int center)
 {
-    points = get_circle_points();
-
+    points = get_circle_plane_vectors(radius, center);
     for (auto& p : points)
     {
-        Matrix homo_coord = get_cartesian_coord(p);
-
-        std::cout << "start: " << homo_coord << std::endl;
-
-        Matrix rotation = create_x_rotation_matrix(angle);
+        Matrix homo_coord = get_cartesian_coord(p, center);
+        Matrix rotation = Matrix::get_x_rotation(angle);
         p = rotation * homo_coord;
-        std::cout << "end: " << p << std::endl;
     }
     
     clear_picture(picture);
     for (auto& p : points)
     {
-        auto plane_coord = get_plane_coord(p);
-        picture[plane_coord(0, 0)][plane_coord(1, 0)] = '#';
+        auto plane_coord = get_plane_coord(p, center);
+        picture[plane_coord(1, 0)][plane_coord(0, 0)] = '#';
     }
 
-    print_pic_matrix(picture);
+    print_picture(picture);
+}
+
+
+void clear_screen() {
+    std::system("cls");
+}
+
+bool is_key_pressed(char key)
+{
+    return GetKeyState(key) & 0x8000;
+}
+
+void set_picture(std::vector<Matrix>& cartesian_points, std::vector<std::vector<char>>& picture, int center)
+{
+    for (auto& p : cartesian_points)
+    {
+        Matrix plane_coord = get_plane_coord(p, center);
+        picture[(int)plane_coord(1, 0)][(int)plane_coord(0, 0)] = '#';
+    }
+}
+
+void rotate_fix(Matrix& rotation, std::vector<Matrix>& cartesian_points, std::vector<std::vector<char>>& picture, int center)
+{
+    clear_picture(picture);
+    for (auto& p : cartesian_points)
+    {
+        p = rotation * p;
+    }
+    set_picture(cartesian_points, picture, center);
+    print_picture(picture);
 }
 
 int main()
 {
+    Matrix rotationX = Matrix::get_x_rotation(ANGLE);
+    Matrix rotationY = Matrix::get_y_rotation(ANGLE);
+    Matrix rotationZ = Matrix::get_z_rotation(ANGLE);
+    
     std::vector<std::vector<char>> picture;
-    picture.resize(PICTURE_SIZE, std::vector<char>(PICTURE_SIZE, '.'));
+    int radius;
+    std::cout << "Enter circle radius: ";
+    std::cin >> radius;
 
-    auto points = get_circle_points();
-    for (auto& p : points)
+    int size = 2 * radius + 1;
+    int center = radius;
+    
+    picture.resize(size, std::vector<char>(size, '.'));
+
+    std::vector<Matrix> cartesian_points = get_circle_plane_vectors(radius, center);
+    for (auto& p : cartesian_points)
     {
-        picture[(int)p(0, 0)][(int)p(1, 0)] = '#';
+        p = get_cartesian_coord(p, center);
     }
 
+    set_picture(cartesian_points, picture, center);
+    print_picture(picture);
 
-    for (int i = 0;i < 10; ++i)
+    
+    bool isXPressed = false;
+    bool isYPressed = false;
+    bool isZPressed = false;
+
+    bool running = true;
+    while (running)
     {
-        int degree;
-        std::cout << "enter degree: ";
-        std::cin >> degree;
-        double angle = degree * (M_PI / 180.0);
-        rotate(angle, points, picture);
-    }    
+        if (is_key_pressed('X') && !isXPressed)
+        {
+            clear_screen();
+            rotate_fix(rotationX, cartesian_points, picture, center);
+            isXPressed = true;
 
+        }
+        else if (!is_key_pressed('X'))
+        {
+            isXPressed = false;
+        }
+        
+        if (is_key_pressed('Y') && !isYPressed)
+        {
+            rotate_fix(rotationY, cartesian_points, picture, center);
+            isYPressed = true;
+
+        }
+        else if (!is_key_pressed('Y'))
+        {
+            isYPressed = false;
+        }
+
+        if (is_key_pressed('Z') && !isZPressed)
+        {
+            rotate_fix(rotationZ, cartesian_points, picture, center);
+            isZPressed = true;
+
+        }
+        else if (!is_key_pressed('Z'))
+        {
+            isZPressed = false;
+        }
+
+        if (is_key_pressed(VK_ESCAPE))
+        {
+            running = false;
+        }
+    }
+    
+
+    /*
+    clear_picture(picture);
+    for (auto& p : points)
+    {
+        auto plane_coord = get_plane_coord(p, center);
+        picture[plane_coord(1, 0)][plane_coord(0, 0)] = '#';
+    }
+
+    print_picture(picture);
+
+
+    for (auto& p : points)
+    {
+        Matrix rotation = Matrix::get_x_rotation(ANGLE);
+        p = rotation * p;
+    }
+    
+    clear_picture(picture);
+    for (auto& p : points)
+    {
+        auto plane_coord = get_plane_coord(p, center);
+        picture[plane_coord(1, 0)][plane_coord(0, 0)] = '#';
+    }
+
+    print_picture(picture);
+
+*/
+    
     return 0;
 }

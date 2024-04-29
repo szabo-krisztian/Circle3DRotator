@@ -4,7 +4,9 @@
 #include <Windows.h>
 #include "matrix/matrix.h"
 
-constexpr double ANGLE = 45 * (M_PI / 180.0);
+constexpr int ANGLE_DEGREE = 10;
+constexpr double ANGLE_RADIAN = ANGLE_DEGREE * (M_PI / 180.0);
+
 
 Matrix create_3d_vector(double x, double y)
 {
@@ -73,8 +75,8 @@ Matrix get_cartesian_coord(Matrix& plane_coord, int center)
 Matrix get_plane_coord(Matrix& cartesian_coord, int center)
 {
     Matrix plane_coord(2, 1);
-    plane_coord(0, 0) = (int)round(cartesian_coord(0, 0)) + center;
-    plane_coord(1, 0) = (int)round(cartesian_coord(1, 0)) + center;
+    plane_coord(0, 0) = static_cast<int>(std::round(cartesian_coord(0, 0))) + center;
+    plane_coord(1, 0) = static_cast<int>(std::round(cartesian_coord(1, 0))) + center;
     return plane_coord;
 }
 
@@ -89,27 +91,6 @@ void clear_picture(std::vector<std::vector<char>>& picture)
     }
 }
 
-void rotate(double angle, std::vector<Matrix>& points, std::vector<std::vector<char>>& picture, int radius, int center)
-{
-    points = get_circle_plane_vectors(radius, center);
-    for (auto& p : points)
-    {
-        Matrix homo_coord = get_cartesian_coord(p, center);
-        Matrix rotation = Matrix::get_x_rotation(angle);
-        p = rotation * homo_coord;
-    }
-    
-    clear_picture(picture);
-    for (auto& p : points)
-    {
-        auto plane_coord = get_plane_coord(p, center);
-        picture[plane_coord(1, 0)][plane_coord(0, 0)] = '#';
-    }
-
-    print_picture(picture);
-}
-
-
 void clear_screen() {
     std::system("cls");
 }
@@ -119,16 +100,22 @@ bool is_key_pressed(char key)
     return GetKeyState(key) & 0x8000;
 }
 
+bool plane_coord_in_picture(Matrix& plane_coord, int pic_size)
+{
+    return plane_coord(0, 0) >= 0 && plane_coord(0, 0) < pic_size && plane_coord(1, 0) >= 0 && plane_coord(1, 0) < pic_size;
+}
+
 void set_picture(std::vector<Matrix>& cartesian_points, std::vector<std::vector<char>>& picture, int center)
 {
     for (auto& p : cartesian_points)
     {
         Matrix plane_coord = get_plane_coord(p, center);
-        picture[(int)plane_coord(1, 0)][(int)plane_coord(0, 0)] = '#';
+        picture[plane_coord(1, 0)][plane_coord(0, 0)] = '#';
     }
+  
 }
 
-void rotate_fix(Matrix& rotation, std::vector<Matrix>& cartesian_points, std::vector<std::vector<char>>& picture, int center)
+void rotate(Matrix& rotation, std::vector<Matrix>& cartesian_points, std::vector<std::vector<char>>& picture, int center)
 {
     clear_picture(picture);
     for (auto& p : cartesian_points)
@@ -141,9 +128,9 @@ void rotate_fix(Matrix& rotation, std::vector<Matrix>& cartesian_points, std::ve
 
 int main()
 {
-    Matrix rotationX = Matrix::get_x_rotation(ANGLE);
-    Matrix rotationY = Matrix::get_y_rotation(ANGLE);
-    Matrix rotationZ = Matrix::get_z_rotation(ANGLE);
+    Matrix rotationX = Matrix::get_x_rotation(ANGLE_RADIAN);
+    Matrix rotationY = Matrix::get_y_rotation(ANGLE_RADIAN);
+    Matrix rotationZ = Matrix::get_z_rotation(ANGLE_RADIAN);
     
     std::vector<std::vector<char>> picture;
     int radius;
@@ -164,7 +151,6 @@ int main()
     set_picture(cartesian_points, picture, center);
     print_picture(picture);
 
-    
     bool isXPressed = false;
     bool isYPressed = false;
     bool isZPressed = false;
@@ -174,10 +160,8 @@ int main()
     {
         if (is_key_pressed('X') && !isXPressed)
         {
-            clear_screen();
-            rotate_fix(rotationX, cartesian_points, picture, center);
+            rotate(rotationX, cartesian_points, picture, center);
             isXPressed = true;
-
         }
         else if (!is_key_pressed('X'))
         {
@@ -186,9 +170,8 @@ int main()
         
         if (is_key_pressed('Y') && !isYPressed)
         {
-            rotate_fix(rotationY, cartesian_points, picture, center);
+            rotate(rotationY, cartesian_points, picture, center);
             isYPressed = true;
-
         }
         else if (!is_key_pressed('Y'))
         {
@@ -197,9 +180,8 @@ int main()
 
         if (is_key_pressed('Z') && !isZPressed)
         {
-            rotate_fix(rotationZ, cartesian_points, picture, center);
+            rotate(rotationZ, cartesian_points, picture, center);
             isZPressed = true;
-
         }
         else if (!is_key_pressed('Z'))
         {
@@ -211,35 +193,6 @@ int main()
             running = false;
         }
     }
-    
-
-    /*
-    clear_picture(picture);
-    for (auto& p : points)
-    {
-        auto plane_coord = get_plane_coord(p, center);
-        picture[plane_coord(1, 0)][plane_coord(0, 0)] = '#';
-    }
-
-    print_picture(picture);
-
-
-    for (auto& p : points)
-    {
-        Matrix rotation = Matrix::get_x_rotation(ANGLE);
-        p = rotation * p;
-    }
-    
-    clear_picture(picture);
-    for (auto& p : points)
-    {
-        auto plane_coord = get_plane_coord(p, center);
-        picture[plane_coord(1, 0)][plane_coord(0, 0)] = '#';
-    }
-
-    print_picture(picture);
-
-*/
     
     return 0;
 }

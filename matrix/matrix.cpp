@@ -76,6 +76,7 @@ double& Matrix::operator()(int i, int j)
     bool isLegalIndexes = i < rows && j < columns;
     if (!isLegalIndexes)
     {
+        std::cout << i << ", " << j << std::endl;
         throw IndexOutOfRangeException();
     }
 
@@ -148,7 +149,6 @@ Matrix Matrix::operator*(const Matrix& other) const
     bool isMatrixSizeLegal = columns == other.rows;
     if (!isMatrixSizeLegal)
     {
-        std::cout << "sad";
         throw MatrixSizeException();
     }
 
@@ -202,7 +202,6 @@ Matrix Matrix::get_y_rotation(double angle)
     rotation(0, 2) = sinAngle;
     rotation(2, 0) = -sinAngle;
     rotation(2, 2) = cosAngle;
-    std::cout << rotation <<std::endl;
     return rotation;
 }
 

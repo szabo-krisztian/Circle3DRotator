@@ -53,6 +53,7 @@ std::vector<Matrix> get_circle_plane_vectors(int radius, int center)
 
 void print_picture(const std::vector<std::vector<char>>& picture)
 {
+    std::cout << std::endl;
     for (int i = 0; i < picture.size(); ++i)
     {
         for (int j = 0; j < picture.size(); ++j)

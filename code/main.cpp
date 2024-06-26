@@ -127,6 +127,7 @@ void rotate(Matrix& rotation, std::vector<Matrix>& cartesian_points, std::vector
     print_picture(picture);
 }
 
+
 int main()
 {
     Matrix rotationX = Matrix::get_x_rotation(ANGLE_RADIAN);
@@ -157,6 +158,7 @@ int main()
     bool isZPressed = false;
 
     bool running = true;
+    // TODO: Making a separate app
     while (running)
     {
         if (is_key_pressed('X') && !isXPressed)
